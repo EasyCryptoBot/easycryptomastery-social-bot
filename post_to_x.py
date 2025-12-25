@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timezone
 import tweepy
 
 client = tweepy.Client(
@@ -8,7 +9,8 @@ client = tweepy.Client(
     access_token_secret=os.environ["X_ACCESS_TOKEN_SECRET"]
 )
 
-tweet = "TEST POST 🚀 EasyCryptoMastery automation is now live."
+now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+tweet = f"✅ EasyCryptoMastery bot check-in: automation is live ({now}). #Bitcoin"
 
 client.create_tweet(text=tweet)
 print("Tweet posted successfully")
