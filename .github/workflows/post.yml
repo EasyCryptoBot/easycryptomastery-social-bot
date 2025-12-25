@@ -1,9 +1,9 @@
-name: EasyCryptoMastery X Bot
+name: EasyCryptoMastery X Bot (Promo Week)
 
 on:
-  workflow_dispatch:   # allows manual test runs
+  workflow_dispatch:
   schedule:
-    - cron: "0 13 * * *" 
+    - cron: "0 14 * * *"  # 14:00 UTC = 9:00am ET (10am during DST)
 
 jobs:
   post:
@@ -28,3 +28,4 @@ jobs:
           X_API_SECRET: ${{ secrets.X_API_SECRET }}
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          BLOG_URL: "https://easycryptomastery.com/what-is-bitcoin/"
