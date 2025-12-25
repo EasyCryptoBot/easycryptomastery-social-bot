@@ -3,7 +3,7 @@ name: EasyCryptoMastery X Bot
 on:
   workflow_dispatch:   # allows manual test runs
   schedule:
-    - cron: "0 13 * * *"   # daily at 13:00 UTC (9am ET)
+    - cron: "0 13 * * *" 
 
 jobs:
   post:
