@@ -4,15 +4,16 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 import tweepy
 
-# ===== SETTINGS =====
 TORONTO_TZ = ZoneInfo("America/Toronto")
 
-# Change this if your slug is different
-BLOG_URL = os.getenv("BLOG_URL", "https://easycryptomastery.com/what-is-bitcoin/")
+# Which schedule to use: "morning" or "evening"
+SLOT = os.getenv("SLOT", "morning").lower()
 
-SCHEDULE_FILE = "promo_week_what_is_bitcoin.json"
+# Files
+MORNING_FILE = "promo_morning.json"
+EVENING_FILE = "promo_evening.json"
 
-# ===== X CLIENT (OAuth 1.0a user context) =====
+# X client
 client = tweepy.Client(
     consumer_key=os.environ["X_API_KEY"],
     consumer_secret=os.environ["X_API_SECRET"],
@@ -20,27 +21,39 @@ client = tweepy.Client(
     access_token_secret=os.environ["X_ACCESS_TOKEN_SECRET"]
 )
 
-# ===== PICK TODAY'S MESSAGE (Toronto local day) =====
 now_local = datetime.now(TORONTO_TZ)
-day_key = now_local.strftime("%A").lower()  # monday, tuesday, etc.
-date_stamp = now_local.strftime("%b %d")    # e.g., "Dec 25"
+day_key = now_local.strftime("%A").lower()  # monday..sunday
+date_stamp = now_local.strftime("%b %d")    # e.g. "Dec 25"
 
-with open(SCHEDULE_FILE, "r", encoding="utf-8") as f:
+schedule_file = MORNING_FILE if SLOT == "morning" else EVENING_FILE
+
+with open(schedule_file, "r", encoding="utf-8") as f:
     schedule = json.load(f)
 
-base_text = schedule.get(day_key)
-if not base_text:
-    raise ValueError(f"No scheduled tweet found for day: {day_key}")
+item = schedule.get(day_key)
+if not item:
+    raise ValueError(f"No scheduled post found for {day_key} in {schedule_file}")
 
-# Add a small date stamp to prevent X blocking repeats across weeks
-tweet = f"{base_text}\n\n{BLOG_URL}\n\n({date_stamp}) #Bitcoin"
+# Support either:
+# - { "text": "...", "url": "..." }
+# - or simple string (legacy)
+if isinstance(item, dict):
+    text = item.get("text", "").strip()
+    url = item.get("url", "").strip()
+else:
+    text = str(item).strip()
+    url = os.getenv("BLOG_URL", "https://easycryptomastery.com/what-is-bitcoin/")
 
-# Safety: keep within X limit
+if not text or not url:
+    raise ValueError(f"Invalid schedule item for {day_key} in {schedule_file}")
+
+tweet = f"{text}\n\n{url}\n\n({date_stamp}) #Bitcoin"
+
+# Keep within 280
 if len(tweet) > 280:
-    # Trim the base text if needed (rare, but safe)
     overflow = len(tweet) - 280
-    base_text_trimmed = base_text[:-overflow-3] + "..."
-    tweet = f"{base_text_trimmed}\n\n{BLOG_URL}\n\n({date_stamp}) #Bitcoin"
+    text_trimmed = text[:-overflow-3] + "..."
+    tweet = f"{text_trimmed}\n\n{url}\n\n({date_stamp}) #Bitcoin"
 
 client.create_tweet(text=tweet)
-print("Tweet posted:", tweet)
+print(f"Posted ({SLOT}): {tweet}")
