@@ -8,12 +8,14 @@ import tweepy
 TORONTO_TZ = ZoneInfo("America/Toronto")
 SLOT = os.getenv("SLOT", "morning").lower()
 
-MORNING_FILE = "promo_morning.json"
-EVENING_FILE = "promo_evening.json"
-STATE_FILE = "state.json"
+FILES = {
+    "morning": "promo_morning.json",
+    "evening": "promo_evening.json",
+    "midday": "engagement_midday.json"
+}
 
-# How many recent posts to remember to prevent duplicates
-RECENT_LIMIT = 25
+STATE_FILE = "state.json"
+RECENT_LIMIT = 30
 
 def load_json(path: str):
     with open(path, "r", encoding="utf-8") as f:
@@ -23,65 +25,73 @@ def save_json(path: str, obj):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(obj, f, indent=2, ensure_ascii=False)
 
-def signature_for(text: str, url: str, slot: str) -> str:
-    """
-    Create a stable signature that ignores date stamps.
-    If content repeats, signature repeats -> we can skip.
-    """
-    normalized = f"{slot}|{text.strip()}|{url.strip()}|#Bitcoin".lower()
+def signature_for(slot: str, text: str, url: str = "") -> str:
+    normalized = f"{slot}|{text.strip()}|{url.strip()}".lower()
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
-# Load schedule
-schedule_file = MORNING_FILE if SLOT == "morning" else EVENING_FILE
-schedule = load_json(schedule_file)
+if SLOT not in FILES:
+    raise ValueError(f"Invalid SLOT '{SLOT}'. Use one of: {list(FILES.keys())}")
 
-# Local date/day
+schedule = load_json(FILES[SLOT])
+
 now_local = datetime.now(TORONTO_TZ)
 day_key = now_local.strftime("%A").lower()
-date_key = now_local.strftime("%Y-%m-%d")  # stable date for "already posted today" checks
-date_stamp = now_local.strftime("%b %d")   # for the tweet text
+date_key = now_local.strftime("%Y-%m-%d")
+date_stamp = now_local.strftime("%b %d")
 
 item = schedule.get(day_key)
 if not item:
-    raise ValueError(f"No scheduled post found for {day_key} in {schedule_file}")
+    raise ValueError(f"No scheduled post found for {day_key} in {FILES[SLOT]}")
 
-# Support dict or string schedule entries
+# Morning/evening: dict preferred (text + url). Midday: string is fine.
+text = ""
+url = ""
+
 if isinstance(item, dict):
     text = (item.get("text") or "").strip()
     url = (item.get("url") or "").strip()
 else:
     text = str(item).strip()
-    url = os.getenv("BLOG_URL", "https://easycryptomastery.com/what-is-bitcoin/")
 
-if not text or not url:
-    raise ValueError(f"Invalid schedule item for {day_key} in {schedule_file}")
+if not text:
+    raise ValueError(f"Invalid schedule item for {day_key} in {FILES[SLOT]} (missing text)")
 
-# Load state
 state = load_json(STATE_FILE)
+state.setdefault("last_posted_date", {}).setdefault("morning", "")
+state["last_posted_date"].setdefault("evening", "")
+state["last_posted_date"].setdefault("midday", "")
+state.setdefault("recent_signatures", [])
 
-# Safety check 1: don't post twice in the same slot on the same day
-last_date_for_slot = state.get("last_posted_date", {}).get(SLOT, "")
-if last_date_for_slot == date_key:
+# Safety 1: don't post twice in same slot/day
+if state["last_posted_date"][SLOT] == date_key:
     print(f"SKIP: Already posted for slot '{SLOT}' on {date_key}.")
     raise SystemExit(0)
 
-# Safety check 2: don't repeat recent content (signature ignores date stamp)
-sig = signature_for(text, url, SLOT)
-recent = state.get("recent_signatures", [])
-if sig in recent:
+# Safety 2: don't repeat recent content
+sig = signature_for(SLOT, text, url)
+if sig in state["recent_signatures"]:
     print("SKIP: Duplicate detected (recent signature match).")
     raise SystemExit(0)
 
-# Compose tweet (date stamp added, but does not affect duplicate signature)
-tweet = f"{text}\n\n{url}\n\n({date_stamp}) #Bitcoin"
+# Compose tweet
+if SLOT in ("morning", "evening"):
+    if not url:
+        # fallback if url missing for promo slots
+        url = os.getenv("BLOG_URL", "https://easycryptomastery.com/what-is-bitcoin/").strip()
+    tweet = f"{text}\n\n{url}\n\n({date_stamp}) #Bitcoin"
+else:
+    # engagement slot: no link, light hashtag
+    tweet = f"{text}\n\n({date_stamp})"
 
-# Keep within 280 characters
+# Fit 280
 if len(tweet) > 280:
     overflow = len(tweet) - 280
     text_trimmed = text[:-overflow-3] + "..."
-    tweet = f"{text_trimmed}\n\n{url}\n\n({date_stamp}) #Bitcoin"
+    if SLOT in ("morning", "evening"):
+        tweet = f"{text_trimmed}\n\n{url}\n\n({date_stamp}) #Bitcoin"
+    else:
+        tweet = f"{text_trimmed}\n\n({date_stamp})"
 
-# Post to X
 client = tweepy.Client(
     consumer_key=os.environ["X_API_KEY"],
     consumer_secret=os.environ["X_API_SECRET"],
@@ -92,10 +102,10 @@ client = tweepy.Client(
 client.create_tweet(text=tweet)
 print(f"POSTED ({SLOT}): {tweet}")
 
-# Update state and persist
-state.setdefault("last_posted_date", {})[SLOT] = date_key
-recent.append(sig)
-state["recent_signatures"] = recent[-RECENT_LIMIT:]
+# Update state
+state["last_posted_date"][SLOT] = date_key
+state["recent_signatures"].append(sig)
+state["recent_signatures"] = state["recent_signatures"][-RECENT_LIMIT:]
 
 save_json(STATE_FILE, state)
 print("State updated.")
