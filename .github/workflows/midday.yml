@@ -1,0 +1,41 @@
+name: EasyCryptoMastery X Bot (Midday Engagement)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 18 * * *"  # 18:00 UTC ≈ 1pm Toronto (winter)
+
+permissions:
+  contents: write
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install tweepy
+
+      - name: Run posting script (midday)
+        run: python post_to_x.py
+        env:
+          SLOT: "midday"
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+
+      - name: Commit updated state.json (if changed)
+        run: |
+          git config user.name "ecm-bot"
+          git config user.email "ecm-bot@users.noreply.github.com"
+          git add state.json
+          git diff --staged --quiet || (git commit -m "Update bot state" && git push)
