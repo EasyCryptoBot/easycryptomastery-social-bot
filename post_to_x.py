@@ -78,6 +78,44 @@ def signature_for(slot: str, text: str, url: str = "") -> str:
 
 if SLOT not in FILES:
     raise ValueError(f"Invalid SLOT '{SLOT}'. Use one of: {list(FILES.keys())}")
+# ---- PRICE SLOT (no JSON schedule file) ----
+if SLOT == "price":
+    state = load_json(STATE_FILE)
+    state.setdefault("last_posted_date", {}).setdefault("price", "")
+    state.setdefault("recent_signatures", [])
+
+    now_local = datetime.now(TORONTO_TZ)
+    date_key = now_local.strftime("%Y-%m-%d")
+    date_stamp = now_local.strftime("%b %d")
+
+    # Don't post more than once per day
+    if state["last_posted_date"]["price"] == date_key:
+        print(f"SKIP: Already posted for slot '{SLOT}' on {date_key}.")
+        raise SystemExit(0)
+
+    tweet = build_price_tweet(date_stamp)
+
+    sig = signature_for(SLOT, tweet, "")
+    if sig in state["recent_signatures"]:
+        print("SKIP: Duplicate detected (recent signature match).")
+        raise SystemExit(0)
+
+    client = tweepy.Client(
+        consumer_key=os.environ["X_API_KEY"],
+        consumer_secret=os.environ["X_API_SECRET"],
+        access_token=os.environ["X_ACCESS_TOKEN"],
+        access_token_secret=os.environ["X_ACCESS_TOKEN_SECRET"]
+    )
+    client.create_tweet(text=tweet)
+    print(f"POSTED ({SLOT}): {tweet}")
+
+    state["last_posted_date"]["price"] = date_key
+    state["recent_signatures"].append(sig)
+    state["recent_signatures"] = state["recent_signatures"][-RECENT_LIMIT:]
+    save_json(STATE_FILE, state)
+    print("State updated.")
+    raise SystemExit(0)
+# ---- END PRICE SLOT ----
 
 schedule = load_json(FILES[SLOT])
 
