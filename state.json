@@ -2,12 +2,14 @@
   "last_posted_date": {
     "morning": "2025-12-26",
     "evening": "2025-12-26",
-    "midday": "2025-12-26"
+    "midday": "2025-12-26",
+    "price": "2025-12-26"
   },
   "recent_signatures": [
     "d486994f6cbef0caa42741ce832c649345885fba8a52b40b18bb4d11c3bd1852",
     "c8e7e114a0b8d786f348d1ad2a979d35bf7d70e06541cd8bd7f18d7a703a3ad9",
     "af47d619dfc5b0d18d1d0d3a394370e7120c5a52cafb3618b6866126ba8c17c6",
-    "faf4e0ca49ef6fe7448a0feaee4b99e7fb66e722cd3e356fb16b7ae3c74770ae"
+    "faf4e0ca49ef6fe7448a0feaee4b99e7fb66e722cd3e356fb16b7ae3c74770ae",
+    "d8b0e47280869198f050d5c0dac78089296142900660fe4970b819924181e0e8"
   ]
 }
