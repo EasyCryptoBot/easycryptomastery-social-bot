@@ -1,6 +1,51 @@
 import os
 import json
 import hashlib
+import requests
+
+def fmt_pct(p):
+    if p is None:
+        return "n/a"
+    emoji = "🟢" if p >= 0 else "🔴"
+    return f"{emoji}{p:+.2f}%"
+
+def build_price_tweet(date_stamp: str) -> str:
+    # CoinGecko simple price endpoint (free). :contentReference[oaicite:1]{index=1}
+    url = (
+        "https://api.coingecko.com/api/v3/simple/price"
+        "?ids=bitcoin,ethereum,solana"
+        "&vs_currencies=usd,cad"
+        "&include_24hr_change=true"
+    )
+
+    r = requests.get(url, timeout=20)
+    r.raise_for_status()
+    data = r.json()
+
+    btc_usd = data["bitcoin"]["usd"]
+    btc_cad = data["bitcoin"]["cad"]
+    btc_chg = data["bitcoin"].get("usd_24h_change")
+
+    eth_usd = data["ethereum"]["usd"]
+    eth_chg = data["ethereum"].get("usd_24h_change")
+
+    sol_usd = data["solana"]["usd"]
+    sol_chg = data["solana"].get("usd_24h_change")
+
+    lines = [
+        f"Market Snapshot ({date_stamp})",
+        "",
+        f"BTC: ${btc_usd:,.0f} USD / ${btc_cad:,.0f} CAD  {fmt_pct(btc_chg)}",
+        f"ETH: ${eth_usd:,.0f} USD  {fmt_pct(eth_chg)}",
+        f"SOL: ${sol_usd:,.0f} USD  {fmt_pct(sol_chg)}",
+        "",
+        "Beginner focus: zoom out + stay safe. 🔐"
+    ]
+    tweet = "\n".join(lines)
+
+    # Keep under 280 just in case
+    return tweet[:279]
+
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import tweepy
@@ -11,8 +56,10 @@ SLOT = os.getenv("SLOT", "morning").lower()
 FILES = {
     "morning": "promo_morning.json",
     "evening": "promo_evening.json",
-    "midday": "engagement_midday.json"
+    "midday": "engagement_midday.json",
+    "price": None
 }
+
 
 STATE_FILE = "state.json"
 RECENT_LIMIT = 30
@@ -91,6 +138,42 @@ if len(tweet) > 280:
         tweet = f"{text_trimmed}\n\n{url}\n\n({date_stamp}) #Bitcoin"
     else:
         tweet = f"{text_trimmed}\n\n({date_stamp})"
+
+if SLOT == "price":
+    # Load state and apply your existing checks
+    state = load_json(STATE_FILE)
+    state.setdefault("last_posted_date", {}).setdefault("price", "")
+    state.setdefault("recent_signatures", [])
+
+    if state["last_posted_date"]["price"] == date_key:
+        print(f"SKIP: Already posted for slot '{SLOT}' on {date_key}.")
+        raise SystemExit(0)
+
+    tweet = build_price_tweet(date_stamp)
+
+    sig = signature_for(SLOT, tweet, "")
+    if sig in state["recent_signatures"]:
+        print("SKIP: Duplicate detected (recent signature match).")
+        raise SystemExit(0)
+
+    # Post
+    client = tweepy.Client(
+        consumer_key=os.environ["X_API_KEY"],
+        consumer_secret=os.environ["X_API_SECRET"],
+        access_token=os.environ["X_ACCESS_TOKEN"],
+        access_token_secret=os.environ["X_ACCESS_TOKEN_SECRET"]
+    )
+    client.create_tweet(text=tweet)
+    print(f"POSTED ({SLOT}): {tweet}")
+
+    # Update state
+    state["last_posted_date"]["price"] = date_key
+    state["recent_signatures"].append(sig)
+    state["recent_signatures"] = state["recent_signatures"][-RECENT_LIMIT:]
+    save_json(STATE_FILE, state)
+    print("State updated.")
+    raise SystemExit(0)
+
 
 client = tweepy.Client(
     consumer_key=os.environ["X_API_KEY"],
