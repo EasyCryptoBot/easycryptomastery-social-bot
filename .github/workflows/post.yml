@@ -1,12 +1,12 @@
-permissions:
-  contents: write
-
-name: EasyCryptoMastery X Bot (Promo Week)
+name: EasyCryptoMastery X Bot (Morning)
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 14 * * *"  # 14:00 UTC = 9:00am ET (10am during DST)
+    - cron: "0 14 * * *"  # 14:00 UTC ≈ 9am Toronto (winter)
+
+permissions:
+  contents: write
 
 jobs:
   post:
@@ -24,15 +24,15 @@ jobs:
       - name: Install dependencies
         run: pip install tweepy
 
-      - name: Run posting script
+      - name: Run posting script (morning)
         run: python post_to_x.py
         env:
+          SLOT: "morning"
           X_API_KEY: ${{ secrets.X_API_KEY }}
           X_API_SECRET: ${{ secrets.X_API_SECRET }}
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
-          BLOG_URL: "https://easycryptomastery.com/what-is-bitcoin/"
-   
+
       - name: Commit updated state.json (if changed)
         run: |
           git config user.name "ecm-bot"
