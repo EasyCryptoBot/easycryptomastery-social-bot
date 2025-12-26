@@ -22,7 +22,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install tweepy
+        run: pip install tweepy requests
 
       - name: Run posting script (evening)
         run: python post_to_x.py
