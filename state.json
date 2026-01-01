@@ -3,7 +3,7 @@
     "morning": "2025-12-31",
     "evening": "2025-12-29",
     "midday": "2025-12-27",
-    "price": "2025-12-27"
+    "price": "2026-01-01"
   },
   "recent_signatures": [
     "d486994f6cbef0caa42741ce832c649345885fba8a52b40b18bb4d11c3bd1852",
@@ -17,6 +17,7 @@
     "34d2401027bbf4e67199fe07d3b53ea9ebc6965bf30d2780b0d4ba579a76053a",
     "4918d3f309ac5c4fc4ebeb4aabf3b34e5e2d129f893eb88155b5ad1762fa1017",
     "d0e698fa418477618801300597b8bc75a4213510aea732b60920763475029ec5",
-    "3dcb910e401977d1bbe0c2a9ded811bdf6f1ca6b9bd49b1ce38a9e30adb6e8fc"
+    "3dcb910e401977d1bbe0c2a9ded811bdf6f1ca6b9bd49b1ce38a9e30adb6e8fc",
+    "91397e3403be81da65f0d279640d4d961cd819db32c3f60f6c841ef21980b3ff"
   ]
 }
