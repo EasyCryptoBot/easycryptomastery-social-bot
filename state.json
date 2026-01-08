@@ -3,7 +3,7 @@
     "morning": "2026-01-08",
     "evening": "2026-01-07",
     "midday": "2026-01-07",
-    "price": "2026-01-07"
+    "price": "2026-01-08"
   },
   "recent_signatures": [
     "d486994f6cbef0caa42741ce832c649345885fba8a52b40b18bb4d11c3bd1852",
@@ -27,6 +27,7 @@
     "d56633b7da1a29aab8e807cd3554eab39534b509a46f0e4fc32f2cabe371188e",
     "6ea9352205888c00884b1eddbe9a42e641e869459b6f5e997bb82a6c5e6100b0",
     "ecc13bdd454bf8085197f0fe1a7e427485adb893cee40eefc2ddbfeb1b40dc6b",
-    "d2d029f57847b5b7448f7525938a9dd16e189bafa5e944ae4a93e28dfd0a0b28"
+    "d2d029f57847b5b7448f7525938a9dd16e189bafa5e944ae4a93e28dfd0a0b28",
+    "c008baa7a28df8accb6d369eb4a5660d90ae4e8dca3e2bd5075c1b6cdcb13f7e"
   ]
 }
