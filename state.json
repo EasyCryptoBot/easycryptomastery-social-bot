@@ -1,7 +1,7 @@
 {
   "last_posted_date": {
     "morning": "2026-01-08",
-    "evening": "2026-01-07",
+    "evening": "2026-01-08",
     "midday": "2026-01-08",
     "price": "2026-01-08"
   },
@@ -29,6 +29,7 @@
     "ecc13bdd454bf8085197f0fe1a7e427485adb893cee40eefc2ddbfeb1b40dc6b",
     "d2d029f57847b5b7448f7525938a9dd16e189bafa5e944ae4a93e28dfd0a0b28",
     "c008baa7a28df8accb6d369eb4a5660d90ae4e8dca3e2bd5075c1b6cdcb13f7e",
-    "af743a68fa42980110001a27b48ec1076cae3f201afbe27fc27cef3f70a13298"
+    "af743a68fa42980110001a27b48ec1076cae3f201afbe27fc27cef3f70a13298",
+    "ecea6b1057937222bc871eab15ada656cb53e6fec251f0ca76bbbf5337b7fd6e"
   ]
 }
