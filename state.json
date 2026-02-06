@@ -1,12 +1,11 @@
 {
   "last_posted_date": {
     "morning": "2026-02-05",
-    "evening": "2026-02-04",
+    "evening": "2026-02-05",
     "midday": "2026-02-05",
     "price": "2026-02-05"
   },
   "recent_signatures": [
-    "04f12157b01f7883f31d97d968c8ad541fc767928daa25f3964d105d35338aca",
     "bd5ab8fa8b8087c1315021fdf89004774450c0d35acd59ea3ade8d9c0890d53f",
     "9bfa5bc535d083f1f7249e0be9882bd841ccc594bcecf4eeee3c3f5ece70cb57",
     "2c23cccc0bd2220b4fb361e0c6b1afdf6c8fa409cf0a4fdb781788729063316c",
@@ -35,6 +34,7 @@
     "ecc13bdd454bf8085197f0fe1a7e427485adb893cee40eefc2ddbfeb1b40dc6b",
     "d2d029f57847b5b7448f7525938a9dd16e189bafa5e944ae4a93e28dfd0a0b28",
     "8a527d1d130fef3d8cb058ef1aaa811531e5c70185b7997afedd83020c2d0853",
-    "af743a68fa42980110001a27b48ec1076cae3f201afbe27fc27cef3f70a13298"
+    "af743a68fa42980110001a27b48ec1076cae3f201afbe27fc27cef3f70a13298",
+    "ecea6b1057937222bc871eab15ada656cb53e6fec251f0ca76bbbf5337b7fd6e"
   ]
 }
