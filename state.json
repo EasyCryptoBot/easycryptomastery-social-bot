@@ -3,10 +3,9 @@
     "morning": "2026-03-18",
     "evening": "2026-03-17",
     "midday": "2026-03-17",
-    "price": "2026-03-17"
+    "price": "2026-03-18"
   },
   "recent_signatures": [
-    "af743a68fa42980110001a27b48ec1076cae3f201afbe27fc27cef3f70a13298",
     "ecea6b1057937222bc871eab15ada656cb53e6fec251f0ca76bbbf5337b7fd6e",
     "4f2123d6e72d1e97d28b9856e0025c38cd62c49567b401bd60234abd734b4df2",
     "14b71f7161198d6d7fdda55636dd4d79d07b765761a23aee2c53b4350c0e7696",
@@ -35,6 +34,7 @@
     "454819a387655d19b7151ed89fbff5fcd1d2e67c9110e997df032d3c2234c5a7",
     "76e86faf882687bb805e8565cf4665a2a507856926888f6ba22ee39a389f0e0f",
     "c83a7d3bc7bbbe5a7ed922b5f2d6be0e4875b99cfb5a7bebb71be2ac7fad5607",
-    "3dcb910e401977d1bbe0c2a9ded811bdf6f1ca6b9bd49b1ce38a9e30adb6e8fc"
+    "3dcb910e401977d1bbe0c2a9ded811bdf6f1ca6b9bd49b1ce38a9e30adb6e8fc",
+    "4e3fe3adec1ab63001f59e1e50c5bab758e248488a8788b58be0be5d54dcc2c0"
   ]
 }
